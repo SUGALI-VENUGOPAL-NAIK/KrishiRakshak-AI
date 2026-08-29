@@ -1,0 +1,185 @@
+import http from 'http'
+
+const PORT = 5000
+
+const sendJSON = (res, statusCode, data) => {
+  res.writeHead(statusCode, {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  })
+
+  res.end(JSON.stringify(data))
+}
+
+const getAIResponse = (question) => {
+  const q = question.toLowerCase()
+
+  if (q.includes('groundnut') && q.includes('water')) {
+    return {
+      answer:
+        'Groundnut needs timely irrigation during important growth stages. Check soil moisture before irrigation and avoid waterlogging.',
+      category: 'Irrigation',
+      confidence: 'High'
+    }
+  }
+
+  if (q.includes('rice') && q.includes('water')) {
+    return {
+      answer:
+        'Rice generally needs careful water management. Monitor field conditions and avoid unnecessary irrigation when rainfall or sufficient field moisture is available.',
+      category: 'Irrigation',
+      confidence: 'High'
+    }
+  }
+
+  if (
+    q.includes('yellow leaf') ||
+    q.includes('yellow leaves') ||
+    q.includes('yellow')
+  ) {
+    return {
+      answer:
+        'Yellow leaves can have multiple causes such as nutrient imbalance, excess water, insufficient water or disease. First check soil moisture and inspect the affected plants carefully before applying fertilizer or pesticides.',
+      category: 'Crop Health',
+      confidence: 'Medium'
+    }
+  }
+
+  if (
+    q.includes('pest') ||
+    q.includes('insect') ||
+    q.includes('bug')
+  ) {
+    return {
+      answer:
+        'Inspect both sides of leaves and nearby plants to identify the pest. Estimate how widely it has spread before choosing a control method. Avoid applying pesticides without identifying the pest.',
+      category: 'Pest Management',
+      confidence: 'Medium'
+    }
+  }
+
+  if (
+    q.includes('rain') ||
+    q.includes('rainfall') ||
+    q.includes('weather')
+  ) {
+    return {
+      answer:
+        'Before expected rainfall, check field drainage, avoid unnecessary irrigation and monitor crops for disease symptoms after prolonged wet conditions.',
+      category: 'Weather',
+      confidence: 'Medium'
+    }
+  }
+
+  if (
+    q.includes('fertilizer') ||
+    q.includes('fertiliser')
+  ) {
+    return {
+      answer:
+        'Fertilizer requirements depend on crop, soil condition, growth stage and nutrient status. Avoid applying fertilizer based only on leaf colour; use soil testing or locally recommended crop guidance when possible.',
+      category: 'Crop Nutrition',
+      confidence: 'Medium'
+    }
+  }
+
+  if (
+    q.includes('cotton') &&
+    (q.includes('water') || q.includes('irrigation'))
+  ) {
+    return {
+      answer:
+        'Cotton benefits from controlled irrigation. Monitor root-zone soil moisture and avoid excessive watering, especially where drainage is poor.',
+      category: 'Cotton',
+      confidence: 'Medium'
+    }
+  }
+
+  return {
+    answer:
+      'I can help with crop health, irrigation, weather, pests and basic farm decision support. Please provide the crop name, location, soil condition and the problem you are observing for a more useful answer.',
+    category: 'General Farming',
+    confidence: 'Low'
+  }
+}
+
+const server = http.createServer(async (req, res) => {
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    })
+
+    res.end()
+    return
+  }
+
+  if (req.method === 'GET' && req.url === '/api/health') {
+    sendJSON(res, 200, {
+      success: true,
+      service: 'KrishiRakshak AI',
+      status: 'online'
+    })
+
+    return
+  }
+
+  if (req.method === 'POST' && req.url === '/api/ask') {
+    let body = ''
+
+    req.on('data', (chunk) => {
+      body += chunk.toString()
+    })
+
+    req.on('end', () => {
+      try {
+        const data = JSON.parse(body)
+
+        const question = String(data.question || '').trim()
+
+        if (!question) {
+          sendJSON(res, 400, {
+            success: false,
+            message: 'Question is required.'
+          })
+
+          return
+        }
+
+        const result = getAIResponse(question)
+
+        sendJSON(res, 200, {
+          success: true,
+          question,
+          ...result,
+          timestamp: new Date().toISOString()
+        })
+      } catch (error) {
+        sendJSON(res, 400, {
+          success: false,
+          message: 'Invalid request.'
+        })
+      }
+    })
+
+    return
+  }
+
+  sendJSON(res, 404, {
+    success: false,
+    message: 'Route not found.'
+  })
+})
+
+server.listen(PORT, () => {
+  console.log('')
+  console.log('🌾 KrishiRakshak AI Backend')
+  console.log('--------------------------------')
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+  console.log('🤖 AI endpoint: POST /api/ask')
+  console.log('❤️ Health endpoint: GET /api/health')
+  console.log('--------------------------------')
+})

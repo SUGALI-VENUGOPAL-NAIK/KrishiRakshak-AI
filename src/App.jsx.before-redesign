@@ -1,0 +1,570 @@
+import { useState } from 'react'
+import './App.css'
+
+function App() {
+  const [started, setStarted] = useState(false)
+  const [showCropTool, setShowCropTool] = useState(false)
+  const [showDiseaseTool, setShowDiseaseTool] = useState(false)
+  const [showWeatherTool, setShowWeatherTool] = useState(false)
+  const [showIrrigationTool, setShowIrrigationTool] = useState(false)
+
+  const [soil, setSoil] = useState('')
+  const [season, setSeason] = useState('')
+  const [water, setWater] = useState('')
+  const [recommendation, setRecommendation] = useState('')
+
+  const [crop, setCrop] = useState('')
+  const [symptom, setSymptom] = useState('')
+  const [selectedImage, setSelectedImage] = useState(null)
+  const [diseaseResult, setDiseaseResult] = useState('')
+
+  const [location, setLocation] = useState('')
+  const [weatherResult, setWeatherResult] = useState('')
+
+  const [irrigationCrop, setIrrigationCrop] = useState('')
+  const [irrigationSoil, setIrrigationSoil] = useState('')
+  const [irrigationResult, setIrrigationResult] = useState('')
+
+  const goToDashboard = () => {
+    setStarted(true)
+
+    setTimeout(() => {
+      document.getElementById('dashboard')?.scrollIntoView({
+        behavior: 'smooth',
+      })
+    }, 100)
+  }
+
+  const recommendCrop = () => {
+    if (!soil || !season || !water) {
+      setRecommendation('Please select all three options first 🌱')
+      return
+    }
+
+    if (soil === 'black' && season === 'kharif' && water === 'high') {
+      setRecommendation(
+        '🌾 Recommended Crop: Cotton — These conditions can be suitable for cotton.'
+      )
+    } else if (soil === 'loamy' && water === 'medium') {
+      setRecommendation(
+        '🌱 Recommended Crop: Groundnut — Loamy soil with moderate water can be suitable for groundnut.'
+      )
+    } else if (season === 'rabi' && water === 'low') {
+      setRecommendation(
+        '🌾 Recommended Crop: Chickpea — Chickpea can perform well in Rabi conditions with limited water.'
+      )
+    } else {
+      setRecommendation(
+        '🌱 Recommended Crop: Millet — Millet can be a suitable option for moderate or limited-water conditions.'
+      )
+    }
+  }
+
+  const detectDisease = () => {
+  if (!selectedImage) {
+  setDiseaseResult('📸 Please upload a crop image first.')
+  return
+}C
+    if (!crop || !symptom) {
+      setDiseaseResult('Please select the crop and symptom first 🐛')
+      return
+    }
+
+    if (crop === 'tomato' && symptom === 'spots') {
+      setDiseaseResult(
+        '🍅 Possible Issue: Early Blight — Remove badly affected leaves, improve airflow and avoid watering the leaves.'
+      )
+    } else if (crop === 'rice' && symptom === 'yellow') {
+      setDiseaseResult(
+        '🌾 Possible Issue: Nutrient deficiency or crop stress — Check soil nutrients and water management.'
+      )
+    } else if (crop === 'cotton' && symptom === 'curl') {
+      setDiseaseResult(
+        '🌿 Possible Issue: Cotton leaf curl symptoms — Inspect the crop carefully for whiteflies and consult a local agricultural expert.'
+      )
+    } else {
+      setDiseaseResult(
+        '🔎 Possible Crop Stress — The selected symptoms need closer inspection. Please consult an agricultural expert for confirmation.'
+      )
+    }
+  }
+
+  const checkWeather = () => {
+    if (!location.trim()) {
+      setWeatherResult('Please enter your village or city name first 📍')
+      return
+    }
+
+    setWeatherResult(
+      `🌤️ Weather for ${location}: This demo currently shows sample farming guidance. Live weather data will be connected in the next step.`
+    )
+  }
+
+  const planIrrigation = () => {
+    if (!irrigationCrop || !irrigationSoil) {
+      setIrrigationResult(
+        'Please select the crop and soil type first 💧'
+      )
+      return
+    }
+
+    if (irrigationCrop === 'rice') {
+      setIrrigationResult(
+        '💧 Rice: Maintain proper field moisture and avoid unnecessary water wastage. Check the field regularly.'
+      )
+    } else if (irrigationCrop === 'cotton') {
+      setIrrigationResult(
+        '💧 Cotton: Water according to soil moisture and crop growth stage. Avoid excessive irrigation.'
+      )
+    } else if (irrigationCrop === 'groundnut') {
+      setIrrigationResult(
+        '💧 Groundnut: Maintain moderate soil moisture and avoid prolonged waterlogging.'
+      )
+    } else {
+      setIrrigationResult(
+        '💧 Irrigation Guide: Check soil moisture before watering and avoid over-irrigation.'
+      )
+    }
+  }
+
+  return (
+    
+    <div className="app">
+   <nav className="navbar">
+  <div className="nav-brand">
+    🌾 <span>KrishiRakshak</span>
+  </div>
+
+  <div className="nav-links">
+    <button onClick={() => setStarted(false)}>Home</button>
+    <button onClick={() => setStarted(true)}>Dashboard</button>
+   </div>
+    </nav>
+
+      <section className="hero">
+        <div className="hero-card">
+
+          <div className="hero-icon">🌾🤖</div>
+
+          <h1>
+            KrishiRakshak <span>AI</span>
+          </h1>
+
+          <p>
+            Smart farming assistance for farmers.
+            Get simple, intelligent and useful agricultural guidance
+            in one place.
+          </p>
+
+          <button className="hero-button" onClick={goToDashboard}>
+            {started ? 'Explore Dashboard ↓' : 'Get Started →'}
+          </button>
+
+        </div>
+      </section>
+
+      <section id="dashboard" className="dashboard">
+
+        <div className="dashboard-heading">
+          <p className="eyebrow">SMART FARMING DASHBOARD</p>
+
+          <h2>How can we help you today? 🌱</h2>
+
+          <p>
+            Choose a farming tool and get started with KrishiRakshak AI.
+          </p>
+        </div>
+
+        <div className="features">
+
+          <div className="feature-card">
+            <div className="icon">🌾</div>
+            <h3>Crop Recommendation</h3>
+            <p>Find suitable crops based on your farming needs.</p>
+            <button onClick={() => setShowCropTool(true)}>
+              Explore →
+            </button>
+          </div>
+
+          <div className="feature-card">
+            <div className="icon">🐛</div>
+            <h3>Disease Detection</h3>
+         <p>Identify possible crop diseases and get guidance.</p>
+            
+         <input
+            type="file"
+           accept="image/*"
+           onChange={(e) => setSelectedImage(e.target.files[0])}
+        />
+
+         {selectedImage && (
+         <p>📸 Selected: {selectedImage.name}</p>
+        )}
+
+         {selectedImage && (
+  <img
+    src={URL.createObjectURL(selectedImage)}
+    alt="Selected crop"
+    style={{
+      width: '100%',
+      maxWidth: '350px',
+      marginTop: '15px',
+      borderRadius: '18px',
+      objectFit: 'cover'
+    }}
+  />
+)}
+
+            <button onClick={() => setShowDiseaseTool(true)}>
+              Check Crop →
+            </button>
+          </div>
+
+          <div className="feature-card">
+            <div className="icon">🌦️</div>
+            <h3>Weather</h3>
+            <p>View weather information useful for farming decisions.</p>
+            <button onClick={() => setShowWeatherTool(true)}>
+              View Weather →
+            </button>
+          </div>
+
+          <div className="feature-card">
+            <div className="icon">💧</div>
+            <h3>Irrigation</h3>
+            <p>Get smarter ideas for watering your crops.</p>
+            <button onClick={() => setShowIrrigationTool(true)}>
+              Plan Irrigation →
+            </button>
+          </div>
+
+       <div className="feature-card">
+  <div className="icon">🤖</div>
+  <h3>AI Farmer Assistant</h3>
+  <p>Ask farming questions and receive simple guidance.</p>
+
+  <button onClick={() => {
+  const question = prompt('🤖 Ask KrishiRakshak AI your farming question:')
+  if (question) {
+    alert(`🌾 KrishiRakshak AI:\n\nYou asked: ${question}\n\n💡 Please consult a local agricultural expert for crop-specific advice.`)
+  }
+}}>
+  Ask AI →
+</button>
+</div>
+       
+          <div className="feature-card">
+            <div className="icon">📊</div>
+            <h3>Farm Insights</h3>
+            <p>Keep track of useful information for your farm.</p>
+            <button onClick={() => alert('📊 Farm Insights: Your farm information and performance insights will appear here.')}>
+  View Insights →
+</button>
+          </div>
+
+        </div>
+
+        {showCropTool && (
+          <div className="crop-tool">
+            <div className="crop-tool-header">
+              <div>
+                <p className="eyebrow">AI CROP GUIDE</p>
+                <h2>Find the right crop 🌾</h2>
+                <p>Select your farming conditions.</p>
+              </div>
+
+              <button
+                className="close-button"
+                onClick={() => setShowCropTool(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="crop-form">
+
+              <label>
+                Soil Type
+                <select
+                  value={soil}
+                  onChange={(e) => setSoil(e.target.value)}
+                >
+                  <option value="">Select soil</option>
+                  <option value="black">Black Soil</option>
+                  <option value="loamy">Loamy Soil</option>
+                  <option value="red">Red Soil</option>
+                </select>
+              </label>
+
+              <label>
+                Season
+                <select
+                  value={season}
+                  onChange={(e) => setSeason(e.target.value)}
+                >
+                  <option value="">Select season</option>
+                  <option value="kharif">Kharif</option>
+                  <option value="rabi">Rabi</option>
+                  <option value="summer">Summer</option>
+                </select>
+              </label>
+
+              <label>
+                Water Availability
+                <select
+                  value={water}
+                  onChange={(e) => setWater(e.target.value)}
+                >
+                  <option value="">Select water level</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </label>
+
+            </div>
+
+            <button
+              className="recommend-button"
+              onClick={recommendCrop}
+            >
+              Recommend Crop 🌱
+            </button>
+
+            {recommendation && (
+              <div className="recommendation">
+                {recommendation}
+              </div>
+            )}
+          </div>
+        )}
+
+        {showDiseaseTool && (
+          <div className="crop-tool">
+
+            <div className="crop-tool-header">
+              <div>
+                <p className="eyebrow">CROP HEALTH GUIDE</p>
+                <h2>Check Crop Health 🐛</h2>
+                <p>Select the crop and visible symptom.</p>
+              </div>
+
+              <button
+                className="close-button"
+                onClick={() => setShowDiseaseTool(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="crop-form">
+
+              <label>
+                Crop
+                <select
+                  value={crop}
+                  onChange={(e) => setCrop(e.target.value)}
+                >
+                  <option value="">Select crop</option>
+                  <option value="tomato">Tomato</option>
+                  <option value="rice">Rice</option>
+                  <option value="cotton">Cotton</option>
+                </select>
+              </label>
+
+              <label>
+                Visible Symptom
+                <select
+                  value={symptom}
+                  onChange={(e) => setSymptom(e.target.value)}
+                >
+                  <option value="">Select symptom</option>
+                  <option value="spots">Leaf spots</option>
+                  <option value="yellow">Yellow leaves</option>
+                  <option value="curl">Leaf curling</option>
+                </select>
+              </label>
+
+            </div>
+
+            <button
+              className="recommend-button"
+              onClick={detectDisease}
+            >
+              Check Crop Health 🔍
+            </button>
+
+            {diseaseResult && (
+              <div className="recommendation">
+                {diseaseResult}
+              </div>
+            )}
+
+          </div>
+        )}
+
+        {showWeatherTool && (
+          <div className="crop-tool">
+
+            <div className="crop-tool-header">
+              <div>
+                <p className="eyebrow">FARM WEATHER</p>
+                <h2>Check Weather 🌦️</h2>
+                <p>Enter your village or city.</p>
+              </div>
+
+              <button
+                className="close-button"
+                onClick={() => setShowWeatherTool(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="weather-form">
+
+              <label>
+                Village / City
+
+                <input
+                  type="text"
+                  placeholder="e.g. Anantapur"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </label>
+
+            </div>
+
+            <button
+              className="recommend-button"
+              onClick={checkWeather}
+            >
+              Check Weather 🌦️
+            </button>
+
+            {weatherResult && (
+              <div className="recommendation">
+                {weatherResult}
+              </div>
+            )}
+
+          </div>
+        )}
+
+        {showIrrigationTool && (
+          <div className="crop-tool">
+
+            <div className="crop-tool-header">
+
+              <div>
+                <p className="eyebrow">
+                  SMART IRRIGATION
+                </p>
+
+                <h2>
+                  Plan Irrigation 💧
+                </h2>
+
+                <p>
+                  Select your crop and soil to get basic irrigation guidance.
+                </p>
+              </div>
+
+              <button
+                className="close-button"
+                onClick={() => setShowIrrigationTool(false)}
+              >
+                ✕
+              </button>
+
+            </div>
+
+            <div className="crop-form">
+
+              <label>
+                Crop
+
+                <select
+                  value={irrigationCrop}
+                  onChange={(e) => setIrrigationCrop(e.target.value)}
+                >
+
+                  <option value="">
+                    Select crop
+                  </option>
+
+                  <option value="rice">
+                    Rice
+                  </option>
+
+                  <option value="cotton">
+                    Cotton
+                  </option>
+
+                  <option value="groundnut">
+                    Groundnut
+                  </option>
+
+                  <option value="millet">
+                    Millet
+                  </option>
+
+                </select>
+
+              </label>
+
+
+              <label>
+                Soil Type
+
+                <select
+                  value={irrigationSoil}
+                  onChange={(e) => setIrrigationSoil(e.target.value)}
+                >
+
+                  <option value="">
+                    Select soil
+                  </option>
+
+                  <option value="black">
+                    Black Soil
+                  </option>
+
+                  <option value="loamy">
+                    Loamy Soil
+                  </option>
+
+                  <option value="red">
+                    Red Soil
+                  </option>
+
+                </select>
+
+              </label>
+
+            </div>
+
+            <button
+              className="recommend-button"
+              onClick={planIrrigation}
+            >
+              Get Irrigation Plan 💧
+            </button>
+
+            {irrigationResult && (
+              <div className="recommendation">
+                {irrigationResult}
+              </div>
+            )}
+
+          </div>
+        )}
+
+      </section>
+
+    </div>
+  )
+}
+
+export default App

@@ -1,0 +1,1333 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #07110d;
+  --bg-soft: #0b1913;
+  --card: rgba(15, 32, 24, 0.82);
+  --card-light: rgba(22, 48, 35, 0.9);
+  --green: #49e28b;
+  --green-dark: #1ca95a;
+  --lime: #b6f36b;
+  --text: #f2fff7;
+  --muted: #91a99c;
+  --border: rgba(112, 238, 157, 0.16);
+  --danger: #ff7b7b;
+  --shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(48, 180, 103, 0.12), transparent 30%),
+    radial-gradient(circle at 90% 20%, rgba(122, 231, 116, 0.08), transparent 28%),
+    linear-gradient(135deg, #050c09 0%, #07150e 45%, #091b12 100%);
+  color: var(--text);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* =========================
+   HERO / LANDING
+========================= */
+
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before,
+.hero::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.hero::before {
+  width: 500px;
+  height: 500px;
+  background: rgba(53, 218, 126, 0.08);
+  top: -220px;
+  left: -180px;
+}
+
+.hero::after {
+  width: 600px;
+  height: 600px;
+  background: rgba(168, 239, 95, 0.06);
+  bottom: -300px;
+  right: -220px;
+}
+
+.hero-card {
+  width: min(850px, 100%);
+  padding: 75px 55px;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(21, 48, 35, 0.9),
+      rgba(7, 20, 14, 0.94)
+    );
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+  animation: heroIn 0.9s ease both;
+}
+
+@keyframes heroIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.hero-icon {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 28px;
+  font-size: 45px;
+  background: rgba(73, 226, 139, 0.1);
+  border: 1px solid rgba(73, 226, 139, 0.25);
+  box-shadow: 0 0 45px rgba(73, 226, 139, 0.12);
+}
+
+.eyebrow {
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.hero-card h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(42px, 7vw, 76px);
+  line-height: 1;
+  letter-spacing: -3px;
+  margin-bottom: 25px;
+}
+
+.hero-card h1 span,
+.nav-brand span {
+  color: var(--green);
+}
+
+.hero-card > p:not(.eyebrow) {
+  max-width: 650px;
+  margin: 0 auto;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+.hero-button {
+  margin-top: 38px;
+  border: 0;
+  border-radius: 14px;
+  padding: 16px 28px;
+  color: #041008;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, var(--green), var(--lime));
+  box-shadow: 0 15px 40px rgba(73, 226, 139, 0.18);
+  transition: 0.25s ease;
+}
+
+.hero-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 50px rgba(73, 226, 139, 0.3);
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar {
+  min-height: 78px;
+  padding: 16px 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid rgba(120, 235, 161, 0.1);
+  background: rgba(5, 15, 10, 0.78);
+  backdrop-filter: blur(18px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.nav-brand {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.nav-home,
+.nav-back {
+  border: 1px solid rgba(73, 226, 139, 0.18);
+  background: rgba(73, 226, 139, 0.06);
+  color: var(--text);
+  padding: 11px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.nav-home:hover,
+.nav-back:hover {
+  background: rgba(73, 226, 139, 0.14);
+  border-color: rgba(73, 226, 139, 0.35);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   DASHBOARD
+========================= */
+
+.dashboard {
+  width: min(1200px, 90%);
+  margin: 0 auto;
+  padding: 75px 0 100px;
+}
+
+.dashboard-heading {
+  max-width: 760px;
+  margin-bottom: 45px;
+}
+
+.dashboard-heading h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(34px, 5vw, 54px);
+  line-height: 1.05;
+  letter-spacing: -2px;
+  margin-bottom: 18px;
+}
+
+.dashboard-heading > p:last-child {
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+/* =========================
+   FEATURE CARDS
+========================= */
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.feature-card {
+  position: relative;
+  min-height: 300px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  border-radius: 24px;
+  border: 1px solid rgba(73, 226, 139, 0.12);
+
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(73, 226, 139, 0.10),
+      transparent 35%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(20, 43, 32, 0.92),
+      rgba(7, 20, 13, 0.96)
+    );
+
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    background 0.3s ease;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(73, 226, 139, 0.5),
+    transparent
+  );
+
+  opacity: 0.35;
+  transition: opacity 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-9px);
+
+  border-color: rgba(73, 226, 139, 0.35);
+
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(73, 226, 139, 0.16),
+      transparent 40%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(25, 57, 42, 0.98),
+      rgba(7, 21, 14, 0.98)
+    );
+
+  box-shadow:
+    0 24px 65px rgba(0, 0, 0, 0.35),
+    0 0 35px rgba(73, 226, 139, 0.07);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+
+.feature-card .icon {
+  width: 62px;
+  height: 62px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 18px;
+
+  font-size: 30px;
+
+  margin-bottom: 24px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(73, 226, 139, 0.13),
+      rgba(73, 226, 139, 0.04)
+    );
+
+  border: 1px solid rgba(73, 226, 139, 0.18);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.feature-card:hover .icon {
+  transform: scale(1.08) rotate(-2deg);
+
+  box-shadow:
+    0 0 25px rgba(73, 226, 139, 0.12);
+}
+
+.feature-card h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 21px;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+
+  margin-bottom: 12px;
+
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.feature-card:hover h3 {
+  color: var(--lime);
+  transform: translateX(2px);
+}
+
+.feature-card p {
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 14px;
+
+  margin-bottom: 25px;
+
+  transition: color 0.25s ease;
+}
+
+.feature-card:hover p {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.feature-card button {
+  margin-top: auto;
+
+  width: fit-content;
+
+  border: 1px solid rgba(73, 226, 139, 0.16);
+  border-radius: 10px;
+
+  background: rgba(73, 226, 139, 0.05);
+
+  color: var(--green);
+
+  font-weight: 800;
+  font-size: 13px;
+
+  padding: 10px 14px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.feature-card button:hover {
+  transform: translateX(5px);
+
+  color: var(--lime);
+
+  background: rgba(73, 226, 139, 0.10);
+
+  border-color: rgba(73, 226, 139, 0.30);
+
+  box-shadow:
+    0 0 18px rgba(73, 226, 139, 0.08);
+}
+
+.feature-card button:active {
+  transform: translateX(5px) scale(0.97);
+}
+
+/* =========================
+   TOOL PAGE
+========================= */
+
+.tool-page {
+  min-height: 100vh;
+}
+
+.workspace {
+  width: min(950px, 90%);
+  margin: 0 auto;
+  padding: 65px 0 100px;
+}
+
+.workspace-card {
+  border-radius: 28px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(18, 42, 30, 0.92),
+      rgba(7, 20, 13, 0.96)
+    );
+  box-shadow: var(--shadow);
+  padding: 45px;
+  animation: cardIn 0.35s ease both;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.workspace-header {
+  margin-bottom: 30px;
+}
+
+.workspace-header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(30px, 5vw, 46px);
+  letter-spacing: -1.5px;
+  margin-bottom: 15px;
+}
+
+.workspace-header > p:last-child {
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 700px;
+}
+
+.step-badge {
+  width: fit-content;
+  margin-bottom: 25px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--green);
+  background: rgba(73, 226, 139, 0.07);
+  border: 1px solid rgba(73, 226, 139, 0.12);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+/* =========================
+   FORMS
+========================= */
+
+.crop-form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 25px;
+}
+
+.crop-form label,
+.weather-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  color: #c9dbd0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.crop-form select,
+.weather-form input,
+.ai-question-box textarea {
+  width: 100%;
+  border: 1px solid rgba(115, 226, 156, 0.15);
+  outline: none;
+  border-radius: 12px;
+  padding: 14px 15px;
+  color: var(--text);
+  background: rgba(3, 13, 8, 0.7);
+  transition: 0.2s ease;
+}
+
+/* =========================
+   AI ASSISTANT — PREMIUM INPUT
+========================= */
+
+.ai-question-box {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.ai-question-box textarea {
+  min-height: 150px;
+  resize: vertical;
+
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+
+  padding: 18px;
+
+  border-radius: 18px;
+  border: 1px solid rgba(73, 226, 139, 0.16);
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(73, 226, 139, 0.08),
+      transparent 40%
+    ),
+    rgba(3, 13, 8, 0.82);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 10px 30px rgba(0, 0, 0, 0.15);
+
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.ai-question-box textarea::placeholder {
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.ai-question-box textarea:focus {
+  border-color: rgba(73, 226, 139, 0.45);
+
+  box-shadow:
+    0 0 0 3px rgba(73, 226, 139, 0.06),
+    0 15px 35px rgba(0, 0, 0, 0.20);
+
+  transform: translateY(-1px);
+}
+
+.crop-form select:focus,
+.weather-form input:focus,
+.ai-question-box textarea:focus {
+  border-color: rgba(73, 226, 139, 0.55);
+  box-shadow: 0 0 0 4px rgba(73, 226, 139, 0.06);
+}
+
+.crop-form select option {
+  background: #0b1a12;
+  color: white;
+}
+
+.weather-form {
+  margin-bottom: 24px;
+}
+
+.weather-form input {
+  max-width: 600px;
+}
+
+.recommend-button {
+  border: 0;
+  border-radius: 12px;
+  padding: 14px 21px;
+  color: #031008;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--green), var(--lime));
+  box-shadow: 0 12px 30px rgba(73, 226, 139, 0.13);
+  transition: 0.2s ease;
+}
+
+.recommend-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 17px 38px rgba(73, 226, 139, 0.22);
+}
+
+.recommend-button:active {
+  transform: translateY(0);
+}
+
+/* =========================
+   RESULT
+========================= */
+
+.recommendation {
+  margin-top: 28px;
+  padding: 22px;
+  border-radius: 17px;
+  border: 1px solid rgba(73, 226, 139, 0.18);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(73, 226, 139, 0.08),
+      rgba(73, 226, 139, 0.025)
+    );
+  animation: resultIn 0.3s ease both;
+}
+
+
+/* =========================
+   AI RESPONSE — PREMIUM
+========================= */
+
+.ai-question-box + .recommend-button {
+  margin-top: 4px;
+}
+
+.workspace-card .recommendation {
+  border-radius: 20px;
+  padding: 24px;
+  margin-top: 24px;
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(73, 226, 139, 0.09),
+      transparent 38%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(20, 43, 32, 0.88),
+      rgba(7, 20, 13, 0.96)
+    );
+
+  border: 1px solid rgba(73, 226, 139, 0.18);
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.workspace-card .recommendation strong {
+  color: var(--lime);
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.workspace-card .recommendation p {
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.75;
+}
+
+@keyframes resultIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.recommendation strong {
+  display: block;
+  color: var(--green);
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.recommendation p {
+  color: #d4e5da;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+/* =========================
+   AI ASSISTANT
+========================= */
+
+.ai-question-box {
+  margin-bottom: 20px;
+}
+
+.ai-question-box textarea {
+  min-height: 170px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.ai-question-box textarea::placeholder,
+.weather-form input::placeholder {
+  color: #60786a;
+}
+
+/* =========================
+   INSIGHTS
+========================= */
+
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.insight-box {
+  padding: 24px;
+  border-radius: 18px;
+  background: rgba(4, 17, 10, 0.55);
+  border: 1px solid rgba(100, 220, 145, 0.11);
+  transition: 0.2s ease;
+}
+
+.insight-box:hover {
+  border-color: rgba(73, 226, 139, 0.3);
+  transform: translateY(-3px);
+}
+
+.insight-box span {
+  display: block;
+  font-size: 28px;
+  margin-bottom: 15px;
+}
+
+.insight-box strong {
+  display: block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px;
+  margin-bottom: 8px;
+}
+
+.insight-box p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #06100b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #234d35;
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #32704b;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+  .features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .crop-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .hero {
+    padding: 18px;
+  }
+
+  .hero-card {
+    padding: 50px 25px;
+    border-radius: 25px;
+  }
+
+  .hero-card h1 {
+    letter-spacing: -2px;
+  }
+
+  .navbar {
+    padding: 14px 5%;
+  }
+
+  .nav-brand {
+    font-size: 17px;
+  }
+
+  .dashboard {
+    width: 92%;
+    padding-top: 50px;
+  }
+
+  .features {
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.feature-card {
+  min-height: auto;
+  padding: 24px 20px;
+  border-radius: 20px;
+}
+
+.feature-card .icon {
+  width: 56px;
+  height: 56px;
+  font-size: 27px;
+  margin-bottom: 20px;
+}
+
+.feature-card h3 {
+  font-size: 20px;
+}
+
+.feature-card p {
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.feature-card button {
+  width: fit-content;
+  padding: 10px 13px;
+}
+
+  .workspace {
+    width: 92%;
+    padding-top: 35px;
+  }
+
+  .workspace-card {
+    padding: 28px 20px;
+    border-radius: 22px;
+  }
+
+  .workspace-header h1 {
+    font-size: 32px;
+  }
+
+  .insight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-back,
+  .nav-home {
+    padding: 9px 12px;
+    font-size: 12px;
+  }
+
+  .recommend-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-card {
+    padding: 40px 18px;
+  }
+
+  .hero-icon {
+    width: 75px;
+    height: 75px;
+    font-size: 36px;
+  }
+
+  .hero-card > p:not(.eyebrow) {
+    font-size: 14px;
+  }
+
+  .dashboard-heading h2 {
+    font-size: 31px;
+  }
+}
+
+/* =========================================================
+   AI DISEASE DETECTION — PREMIUM IMAGE UPLOAD
+   ========================================================= */
+
+.disease-upload {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr);
+  gap: 24px;
+  margin-top: 28px;
+  align-items: stretch;
+}
+
+/* Premium clickable upload area */
+.upload-box {
+  position: relative;
+  min-height: 260px;
+  padding: 42px 28px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 24px;
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(124, 58, 237, 0.18),
+      transparent 55%
+    ),
+    rgba(255, 255, 255, 0.035);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* Hide browser's ugly native file button */
+.upload-box input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Hover */
+.upload-box:hover {
+  transform: translateY(-4px);
+  border-color: rgba(167, 139, 250, 0.75);
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(124, 58, 237, 0.28),
+      transparent 60%
+    ),
+    rgba(255, 255, 255, 0.055);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.25),
+    0 0 35px rgba(124, 58, 237, 0.12);
+}
+
+/* Camera icon */
+.upload-icon {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 18px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(167, 139, 250, 0.25);
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.15);
+  transition: transform 0.25s ease;
+}
+
+.upload-box:hover .upload-icon {
+  transform: scale(1.08);
+}
+
+/* Upload title */
+.upload-box strong {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+/* Upload subtitle */
+.upload-box small {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.6;
+}
+
+/* Preview */
+.disease-preview {
+  min-height: 260px;
+  padding: 12px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.disease-preview img {
+  width: 100%;
+  height: 100%;
+  min-height: 236px;
+  display: block;
+  object-fit: cover;
+  border-radius: 17px;
+}
+
+/* Mobile */
+@media (max-width: 760px) {
+  .disease-upload {
+    grid-template-columns: 1fr;
+  }
+
+  .upload-box,
+  .disease-preview {
+    min-height: 240px;
+  }
+
+  .disease-preview img {
+    min-height: 216px;
+  }
+}
+/* =========================================================
+   PHASE 7 — PREMIUM DISEASE RESULT
+   ========================================================= */
+
+.disease-result {
+  margin-top: 28px;
+  padding: 28px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(
+      circle at 0% 0%,
+      rgba(124, 58, 237, 0.18),
+      transparent 45%
+    ),
+    rgba(255, 255, 255, 0.045);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.disease-result > strong {
+  display: block;
+  font-size: 21px;
+  margin-bottom: 24px;
+}
+
+.disease-result p {
+  margin: 14px 0;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.disease-result p b {
+  color: #ffffff;
+}
+
+/* Disease name */
+.disease-result p:first-of-type {
+  font-size: 19px;
+  font-weight: 600;
+}
+
+/* Confidence highlight */
+.disease-result p:nth-of-type(3) {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(124, 58, 237, 0.12);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+}
+
+/* Engine info */
+.disease-result small {
+  display: block;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Safety note */
+.disease-note {
+  margin-top: 20px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.07);
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* Mobile */
+@media (max-width: 760px) {
+  .disease-result {
+    padding: 20px;
+  }
+
+  .disease-result > strong {
+    font-size: 18px;
+  }
+
+  .disease-result p:first-of-type {
+    font-size: 17px;
+  }
+}
+/* =========================================================
+   PHASE 7.2 — AI CONFIDENCE METER
+   ========================================================= */
+
+.confidence-section {
+  margin: 20px 0;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.confidence-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.confidence-header span {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.confidence-header strong {
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.confidence-bar {
+  width: 100%;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.confidence-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #7c3aed,
+    #a78bfa
+  );
+  box-shadow: 0 0 18px rgba(124, 58, 237, 0.45);
+  transition: width 0.8s ease;
+}
+
+.confidence-section small {
+  display: block;
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.42);
+  line-height: 1.5;
+}
+/* =========================================================
+   PHASE 7.3 — LOW CONFIDENCE SAFETY BADGE
+   ========================================================= */
+
+.confidence-warning {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin: 0 0 22px;
+  padding: 17px 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.confidence-warning > span {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.confidence-warning strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #fbbf24;
+  font-size: 15px;
+}
+
+.confidence-warning p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+  .confidence-warning {
+    padding: 15px;
+  }
+}
+/* =========================================================
+   PHASE 7.4 — DISEASE GUIDANCE CARDS
+   ========================================================= */
+
+.disease-guidance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.guidance-card {
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  padding: 18px;
+  min-height: 150px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.035);
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background 0.25s ease;
+}
+
+.guidance-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(167, 139, 250, 0.3);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.guidance-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(124, 58, 237, 0.13);
+  font-size: 18px;
+}
+
+.guidance-card h3 {
+  margin: 1px 0 8px;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.guidance-card p {
+  margin: 0 !important;
+  font-size: 13px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  .disease-guidance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guidance-card {
+    min-height: auto;
+  }
+}

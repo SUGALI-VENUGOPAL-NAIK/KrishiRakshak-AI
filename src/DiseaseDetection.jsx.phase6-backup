@@ -1,0 +1,246 @@
+import { useState } from 'react'
+
+function DiseaseDetection() {
+  const [image, setImage] = useState(null)
+  const [preview, setPreview] = useState('')
+  const [analyzing, setAnalyzing] = useState(false)
+  const [result, setResult] = useState(null)
+
+  const handleImageChange = (event) => {
+    const file = event.target.files?.[0]
+
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid crop image.')
+      return
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Image size must be below 10 MB.')
+      return
+    }
+
+    setImage(file)
+    setResult(null)
+
+    const reader = new FileReader()
+
+    reader.onload = () => {
+      setPreview(reader.result)
+    }
+
+    reader.readAsDataURL(file)
+  }
+
+  const analyzeCrop = async () => {
+    if (!image) {
+      alert('Please upload a crop image first.')
+      return
+    }
+
+    setAnalyzing(true)
+    setResult(null)
+
+    // Prototype analysis delay
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+
+    setResult({
+      status: 'Possible Crop Stress Detected',
+      severity: 'Moderate',
+      confidence: 'Initial assessment',
+      observation:
+        'The uploaded image contains visible changes that may be associated with disease, pest activity, nutrient imbalance, or environmental stress.',
+      action:
+        'Inspect the affected plant and nearby plants carefully. Check the underside of leaves, soil moisture, irrigation history, and recent weather conditions.',
+      prevention:
+        'Continue regular crop scouting, maintain suitable irrigation and drainage, remove severely affected plant material when appropriate, and monitor nearby plants.',
+    })
+
+    setAnalyzing(false)
+  }
+
+  const removeImage = () => {
+    setImage(null)
+    setPreview('')
+    setResult(null)
+  }
+
+  return (
+    <section className="workspace-card disease-module">
+      <div className="workspace-header">
+        <p className="eyebrow">
+          COMPUTER VISION • CROP HEALTH
+        </p>
+
+        <h1>📸 Crop Disease Detection</h1>
+
+        <p>
+          Upload a clear crop or leaf image for an
+          initial AI-assisted health assessment.
+        </p>
+      </div>
+
+      {!preview ? (
+        <label className="disease-upload-box">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+
+          <div className="disease-upload-icon">
+            📷
+          </div>
+
+          <h2>
+            Upload Crop Image
+          </h2>
+
+          <p>
+            Click here to select a crop or leaf photo
+          </p>
+
+          <span>
+            JPG • PNG • WEBP • Maximum 10 MB
+          </span>
+        </label>
+      ) : (
+        <div className="disease-preview">
+          <img
+            src={preview}
+            alt="Uploaded crop"
+          />
+
+          <div className="disease-actions">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={removeImage}
+            >
+              Remove Image
+            </button>
+
+            <label className="secondary-button">
+              Change Image
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                hidden
+              />
+            </label>
+          </div>
+        </div>
+      )}
+
+      {preview && (
+        <button
+          type="button"
+          className="recommend-button"
+          onClick={analyzeCrop}
+          disabled={analyzing}
+        >
+          {analyzing
+            ? '🔍 Analyzing Crop...'
+            : '🔍 Analyze Crop Health'}
+        </button>
+      )}
+
+      {analyzing && (
+        <div className="disease-loader">
+          <div className="disease-spinner" />
+
+          <div>
+            <strong>
+              KrishiRakshak Vision Engine
+            </strong>
+
+            <p>
+              Inspecting visible crop characteristics...
+            </p>
+          </div>
+        </div>
+      )}
+
+      {result && (
+        <div className="disease-result">
+          <div className="disease-result-top">
+            <div>
+              <span className="disease-label">
+                INITIAL ASSESSMENT
+              </span>
+
+              <h2>
+                {result.status}
+              </h2>
+            </div>
+
+            <span className="severity-badge">
+              {result.severity}
+            </span>
+          </div>
+
+          <p className="disease-confidence">
+            🎯 Confidence: {result.confidence}
+          </p>
+
+          <div className="disease-info-grid">
+            <div className="disease-info-card">
+              <span>
+                👁️ Observation
+              </span>
+
+              <p>
+                {result.observation}
+              </p>
+            </div>
+
+            <div className="disease-info-card">
+              <span>
+                ⚡ Recommended Action
+              </span>
+
+              <p>
+                {result.action}
+              </p>
+            </div>
+
+            <div className="disease-info-card">
+              <span>
+                🛡️ Prevention
+              </span>
+
+              <p>
+                {result.prevention}
+              </p>
+            </div>
+          </div>
+
+          <div className="disease-warning">
+            ⚠️ This is a preliminary decision-support
+            assessment, not a confirmed disease diagnosis.
+            Verify important treatment decisions with a
+            qualified agricultural expert.
+          </div>
+        </div>
+      )}
+
+      <div className="disease-tips">
+        <strong>
+          📷 Better image tips
+        </strong>
+
+        <ul>
+          <li>Use a clear and well-lit image.</li>
+          <li>Capture the affected leaf closely.</li>
+          <li>Avoid blurry photographs.</li>
+          <li>Include affected and healthy areas when possible.</li>
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+export default DiseaseDetection

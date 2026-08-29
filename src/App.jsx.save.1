@@ -1,0 +1,1067 @@
+        reason =
+          'Loamy soil with suitable Rabi conditions can support wheat cultivation.'
+      } else {
+        cropName = 'Chickpea'
+        reason =
+          'Chickpea is a practical Rabi option under these conditions.'
+      }
+    } else {
+      if (water === 'low') {
+        cropName = 'Millet'
+        reason =
+          'Millets are a useful low-water option for summer conditions.'
+      } else if (soil === 'sandy') {
+        cropName = 'Groundnut'
+        reason =
+          'Groundnut can perform well in suitable sandy or well-drained soils.'
+      } else {
+        cropName = 'Millet'
+        reason =
+          'Millet can be a suitable option for the selected summer conditions.'
+      }
+    }
+
+    setRecommendation(
+      `🌱 Recommended Crop: ${cropName}
+
+💡 Why: ${reason}
+
+⚠️ Note: This is decision-support guidance. Verify the recommendation with local agricultural experts and current field conditions.`
+    )
+  }
+
+  // -----------------------------
+  // CROP HEALTH
+  // -----------------------------
+  const checkHealth = () => {
+    if (!healthCrop || !symptom) {
+      setHealthResult('⚠️ Please select the crop and observed symptom.')
+      return
+    }
+
+    let result = ''
+
+    if (symptom === 'spots') {
+      result =
+        '🟠 Possible Leaf Spot / Fungal Stress\n\nInspect affected leaves carefully. Remove severely damaged plant material where appropriate and seek expert confirmation before treatment.'
+    } else if (symptom === 'yellow') {
+      result =
+        '🟡 Possible Nutrient or Water Stress\n\nCheck soil moisture, drainage and crop nutrition. Yellowing can have multiple causes, so confirm the issue before applying fertilizer.'
+    } else if (symptom === 'insects') {
+      result =
+        '🔴 Possible Pest Attack\n\nInspect the underside of leaves and nearby plants for insects or eggs. Use pest-control measures only after confirming the pest.'
+    } else {
+      result =
+        '🔎 Possible Crop Stress\n\nWilting can result from water stress, root problems, disease or pests. Check soil moisture and inspect the roots and stem before taking action.'
+    }
+
+    setHealthResult(
+      `${result}\n\n🌾 Crop selected: ${healthCrop}`
+    )
+  }
+
+  // -----------------------------
+  // LIVE WEATHER
+  // Open-Meteo + Geocoding API
+  // No API key required
+  // -----------------------------
+  const checkWeather = async () => {
+    if (!location.trim()) {
+      setWeatherError('⚠️ Please enter your village or city name first.')
+      setWeatherResult('')
+      return
+    }
+
+    setWeatherLoading(true)
+    setWeatherError('')
+    setWeatherResult('')
+
+    try {
+      // Step 1: Convert city/village name to coordinates
+      const geoResponse = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+          location.trim()
+        )}&count=1&language=en&format=json`
+      )
+
+      if (!geoResponse.ok) {
+        throw new Error('Location service unavailable')
+      }
+
+      const geoData = await geoResponse.json()
+
+      if (!geoData.results || geoData.results.length === 0) {
+        throw new Error(
+          'Location not found. Try a nearby city or district name.'
+        )
+      }
+
+      const place = geoData.results[0]
+
+      // Step 2: Get live/current weather
+      const weatherResponse = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,weather_code,wind_speed_10m&timezone=auto`
+      )
+
+      if (!weatherResponse.ok) {
+        throw new Error('Weather service unavailable')
+      }
+
+      const weatherData = await weatherResponse.json()
+      const current = weatherData.current
+
+      const weatherCode = current.weather_code
+
+      let condition = 'Clear / Partly Cloudy'
+
+      if (weatherCode === 0) {
+        condition = '☀️ Clear Sky'
+      } else if (weatherCode >= 1 && weatherCode <= 3) {
+        condition = '🌤️ Partly Cloudy'
+      } else if (weatherCode >= 45 && weatherCode <= 48) {
+        condition = '🌫️ Foggy'
+      } else if (weatherCode >= 51 && weatherCode <= 67) {
+        condition = '🌧️ Rain / Drizzle'
+      } else if (weatherCode >= 71 && weatherCode <= 77) {
+        condition = '❄️ Snow'
+      } else if (weatherCode >= 80 && weatherCode <= 82) {
+        condition = '🌦️ Rain Showers'
+      } else if (weatherCode >= 95) {
+        condition = '⛈️ Thunderstorm'
+      }
+
+      let farmingAdvice =
+        '🌾 Continue monitoring soil moisture and crop conditions.'
+
+      if (current.precipitation > 0) {
+        farmingAdvice =
+          '🌧️ Rain detected. Consider delaying irrigation and monitor field drainage.'
+      } else if (current.temperature_2m >= 35) {
+        farmingAdvice =
+          '🔥 High temperature detected. Monitor crop water stress and soil moisture carefully.'
+      } else if (current.wind_speed_10m >= 30) {
+        farmingAdvice =
+          '💨 Strong winds detected. Avoid unnecessary spraying and monitor crop damage.'
+      } else if (current.relative_humidity_2m >= 80) {
+        farmingAdvice =
+          '💧 High humidity detected. Monitor crops for fungal disease symptoms.'
+      }
+
+      setWeatherResult({
+        place: `${place.name}${
+          place.admin1 ? `, ${place.admin1}` : ''
+        }${place.country ? `, ${place.country}` : ''}`,
+        condition,
+        temperature: current.temperature_2m,
+        feelsLike: current.apparent_temperature,
+        humidity: current.relative_humidity_2m,
+        rain: current.rain,
+        precipitation: current.precipitation,
+        wind: current.wind_speed_10m,
+        advice: farmingAdvice,
+      })
+    } catch (error) {
+      setWeatherError(
+        `❌ ${error.message || 'Unable to fetch weather data.'}`
+      )
+    } finally {
+      setWeatherLoading(false)
+    }
+  }
+
+  // -----------------------------
+  // IRRIGATION
+  // -----------------------------
+  const planIrrigation = () => {
+    if (!irrigationCrop || !irrigationSoil) {
+      setIrrigationResult(
+        '⚠️ Please select crop and soil type first.'
+      )
+      return
+    }
+
+    let result = ''
+
+    if (irrigationCrop === 'rice') {
+      result =
+        '💧 Rice generally requires higher and more consistent water availability. Monitor field water carefully and avoid unnecessary continuous flooding.'
+    } else if (irrigationCrop === 'cotton') {
+      result =
+        '💧 Cotton needs controlled irrigation. Avoid excessive watering and monitor soil moisture around the root zone.'
+    } else if (irrigationCrop === 'groundnut') {
+      result =
+        '💧 Groundnut benefits from timely irrigation during critical growth stages. Avoid waterlogging.'
+    } else if (irrigationCrop === 'chickpea') {
+      result =
+        '💧 Chickpea generally needs careful irrigation. Avoid excessive watering and waterlogging.'
+    } else {
+      result =
+        '💧 Millet is relatively water-efficient. Irrigate based on soil moisture and crop stage rather than following a fixed schedule.'
+    }
+
+    setIrrigationResult(
+      `${result}
+
+🌱 Crop: ${irrigationCrop}
+🪨 Soil: ${irrigationSoil}
+
+⚠️ Always consider rainfall, soil moisture and local agricultural advice.`
+    )
+  }
+
+  // -----------------------------
+  // AI ASSISTANT
+  // -----------------------------
+  const askAI = () => {
+    if (!question.trim()) {
+      setAiResult('⚠️ Please enter your farming question first.')
+      return
+    }
+
+    const q = question.toLowerCase()
+    let answer = ''
+
+    if (q.includes('water') || q.includes('irrigat')) {
+      answer =
+        '💧 Water Guidance: Check soil moisture before irrigation. Avoid unnecessary watering and consider recent rainfall and crop growth stage.'
+    } else if (q.includes('yellow')) {
+      answer =
+        '🌱 Crop Health Guidance: Yellow leaves may be caused by nutrient imbalance, water stress, poor drainage or disease. Inspect the crop before applying fertilizer.'
+    } else if (q.includes('pest') || q.includes('insect')) {
+      answer =
+        '🐛 Pest Guidance: Inspect leaves, stems and the underside of leaves to identify the pest. Confirm the pest before selecting a control method.'
+    } else if (q.includes('cotton')) {
+      answer =
+        '🌾 Cotton Guidance: Monitor soil moisture, pests and plant growth regularly. Avoid excessive irrigation and verify pest symptoms before treatment.'
+    } else if (q.includes('groundnut')) {
+      answer =
+        '🥜 Groundnut Guidance: Pay attention to soil moisture during critical growth stages and avoid waterlogging.'
+    } else if (q.includes('rice')) {
+      answer =
+        '🌾 Rice Guidance: Monitor field water carefully and adjust irrigation according to crop stage, soil condition and rainfall.'
+    } else {
+      answer =
+        '🤖 KrishiRakshak AI Guidance: Your question has been received. For a reliable recommendation, provide the crop, soil type, season, water availability and observed problem.'
+    }
+
+    setAiResult(
+      `${answer}
+
+⚠️ Prototype guidance — verify important farm decisions with a qualified local agricultural expert.`
+    )
+  }
+
+  const openTool = (tool) => {
+    setActiveTool(tool)
+  }
+
+  const goBack = () => {
+    setActiveTool(null)
+  }
+
+  // -----------------------------
+  // HERO
+  // -----------------------------
+  if (!started) {
+    return (
+      <div className="app">
+        <section className="hero">
+          <div className="hero-card">
+            <div className="hero-icon">🌾</div>
+
+            <p className="eyebrow">
+              SMART AGRICULTURE • AI ASSISTED
+            </p>
+
+            <h1>
+              KrishiRakshak <span>AI</span>
+            </h1>
+
+            <p>
+              A farmer-first digital platform for crop health awareness,
+              recommendations, weather intelligence and actionable farm
+              guidance.
+            </p>
+
+            <button
+              className="hero-button"
+              onClick={() => setStarted(true)}
+            >
+              ENTER KRISHIRAKSHAK →
+            </button>
+          </div>
+        </section>
+      </div>
+    )
+  }
+
+  // -----------------------------
+  // TOOL PAGE
+  // -----------------------------
+  if (activeTool) {
+    return (
+      <div className="app tool-page">
+        <nav className="navbar">
+          <div className="nav-brand">
+            🌾 KrishiRakshak <span>AI</span>
+          </div>
+
+          <button className="nav-back" onClick={goBack}>
+            ← Dashboard
+          </button>
+        </nav>
+
+        <main className="workspace">
+
+          {/* CROP RECOMMENDATION */}
+          {activeTool === 'crop' && (
+            <section className="workspace-card">
+              <div className="workspace-header">
+                <p className="eyebrow">
+                  DECISION SUPPORT MODULE
+                </p>
+
+                <h1>🌱 Crop Recommendation</h1>
+
+                <p>
+                  Analyze soil, season and water availability to
+                  identify a suitable crop.
+                </p>
+              </div>
+
+              <div className="step-badge">
+                01 • FARM CONDITIONS
+              </div>
+
+              <div className="crop-form">
+                <label>
+                  Soil Type
+
+                  <select
+                    value={soil}
+                    onChange={(e) =>
+                      setSoil(e.target.value)
+                    }
+                  >
+                    <option value="">Select soil</option>
+                    <option value="black">Black Soil</option>
+                    <option value="loamy">Loamy Soil</option>
+                    <option value="red">Red Soil</option>
+                    <option value="sandy">Sandy Soil</option>
+                  </select>
+                </label>
+
+                <label>
+                  Season
+
+                  <select
+                    value={season}
+                    onChange={(e) =>
+                      setSeason(e.target.value)
+                    }
+                  >
+                    <option value="">Select season</option>
+                    <option value="kharif">Kharif</option>
+                    <option value="rabi">Rabi</option>
+                    <option value="summer">Summer</option>
+                  </select>
+                </label>
+
+                <label>
+                  Water Availability
+
+                  <select
+                    value={water}
+                    onChange={(e) =>
+                      setWater(e.target.value)
+                    }
+                  >
+                    <option value="">
+                      Select availability
+                    </option>
+                    <option value="high">High</option>
+                    <option value="moderate">
+                      Moderate
+                    </option>
+                    <option value="low">Low</option>
+                  </select>
+                </label>
+              </div>
+
+              <button
+                className="recommend-button"
+                onClick={recommendCrop}
+              >
+                Analyze Conditions 🌱
+              </button>
+
+              {recommendation && (
+                <div className="recommendation">
+                  <strong>AI Recommendation</strong>
+
+                  <p
+                    style={{
+                      whiteSpace: 'pre-line',
+                    }}
+                  >
+                    {recommendation}
+                  </p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* CROP HEALTH */}
+          {activeTool === 'health' && (
+            <section className="workspace-card">
+              <div className="workspace-header">
+                <p className="eyebrow">
+                  CROP HEALTH INTELLIGENCE
+                </p>
+
+                <h1>🐛 Crop Health Check</h1>
+
+                <p>
+                  Select your crop and describe the visible
+                  symptom to receive an initial assessment.
+                </p>
+              </div>
+
+              <div className="crop-form">
+                <label>
+                  Crop
+
+                  <select
+                    value={healthCrop}
+                    onChange={(e) =>
+                      setHealthCrop(e.target.value)
+                    }
+                  >
+                    <option value="">Select crop</option>
+                    <option value="rice">Rice</option>
+                    <option value="cotton">Cotton</option>
+                    <option value="groundnut">
+                      Groundnut
+                    </option>
+                    <option value="chickpea">
+                      Chickpea
+                    </option>
+                    <option value="millet">Millet</option>
+                  </select>
+                </label>
+
+                <label>
+                  Observed Symptom
+
+                  <select
+                    value={symptom}
+                    onChange={(e) =>
+                      setSymptom(e.target.value)
+                    }
+                  >
+                    <option value="">
+                      Select symptom
+                    </option>
+                    <option value="spots">
+                      Leaf Spots
+                    </option>
+                    <option value="yellow">
+                      Yellow Leaves
+                    </option>
+                    <option value="insects">
+                      Visible Insects
+                    </option>
+                    <option value="wilting">
+                      Wilting
+                    </option>
+                  </select>
+                </label>
+              </div>
+
+              <button
+                className="recommend-button"
+                onClick={checkHealth}
+              >
+                Check Crop Health 🔍
+              </button>
+
+              {healthResult && (
+                <div className="recommendation">
+                  <strong>Health Assessment</strong>
+
+                  <p
+                    style={{
+                      whiteSpace: 'pre-line',
+                    }}
+                  >
+                    {healthResult}
+                  </p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* CROP DISEASE DETECTION */}
+          {activeTool === 'disease' && (
+            <DiseaseDetection />
+          )}
+
+          {/* WEATHER */}
+          {activeTool === 'weather' && (
+            <section className="workspace-card">
+              <div className="workspace-header">
+                <p className="eyebrow">
+                  LIVE WEATHER INTELLIGENCE
+                </p>
+
+                <h1>🌦️ Weather Intelligence</h1>
+
+                <p>
+                  Enter your village or city to fetch current
+                  weather information.
+                </p>
+              </div>
+
+              <div className="weather-form">
+                <label>
+                  Village / City
+
+                  <input
+                    type="text"
+                    placeholder="e.g. Kadapa"
+                    value={location}
+                    onChange={(e) =>
+                      setLocation(e.target.value)
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        checkWeather()
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+
+              <button
+                className="recommend-button"
+                onClick={checkWeather}
+                disabled={weatherLoading}
+              >
+                {weatherLoading
+                  ? 'Fetching Weather... ⏳'
+                  : 'Check Live Weather 🌦️'}
+              </button>
+
+              {weatherError && (
+                <div className="recommendation">
+                  <strong>Weather Error</strong>
+
+                  <p>{weatherError}</p>
+                </div>
+              )}
+
+              {weatherResult &&
+                typeof weatherResult === 'object' && (
+                  <div className="weather-result">
+
+                    <div className="weather-location">
+                      <span>📍</span>
+
+                      <div>
+                        <strong>
+                          {weatherResult.place}
+                        </strong>
+
+                        <p>
+                          Current Weather
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="weather-condition">
+                      <span>
+                        {weatherResult.condition}
+                      </span>
+                    </div>
+
+                    <div className="weather-grid">
+
+                      <div className="weather-stat">
+                        <span>🌡️</span>
+                        <small>Temperature</small>
+                        <strong>
+                          {weatherResult.temperature}°C
+                        </strong>
+                      </div>
+
+                      <div className="weather-stat">
+                        <span>🥵</span>
+                        <small>Feels Like</small>
+                        <strong>
+                          {weatherResult.feelsLike}°C
+                        </strong>
+                      </div>
+
+                      <div className="weather-stat">
+                        <span>💧</span>
+                        <small>Humidity</small>
+                        <strong>
+                          {weatherResult.humidity}%
+                        </strong>
+                      </div>
+
+                      <div className="weather-stat">
+                        <span>🌧️</span>
+                        <small>Rain</small>
+                        <strong>
+                          {weatherResult.rain} mm
+                        </strong>
+                      </div>
+
+                      <div className="weather-stat">
+                        <span>☔</span>
+                        <small>Precipitation</small>
+                        <strong>
+                          {weatherResult.precipitation} mm
+                        </strong>
+                      </div>
+
+                      <div className="weather-stat">
+                        <span>💨</span>
+                        <small>Wind</small>
+                        <strong>
+                          {weatherResult.wind} km/h
+                        </strong>
+                      </div>
+
+                    </div>
+
+                    <div className="weather-advice">
+                      <strong>
+                        🌾 Farming Intelligence
+                      </strong>
+
+                      <p>
+                        {weatherResult.advice}
+                      </p>
+                    </div>
+
+                    <div className="weather-source">
+                      Live weather data powered by
+                      Open-Meteo.
+                    </div>
+                  </div>
+                )}
+            </section>
+          )}
+
+          {/* IRRIGATION */}
+          {activeTool === 'irrigation' && (
+            <section className="workspace-card">
+              <div className="workspace-header">
+                <p className="eyebrow">
+                  WATER MANAGEMENT
+                </p>
+
+                <h1>💧 Irrigation Planner</h1>
+
+                <p>
+                  Generate irrigation guidance using crop
+                  and soil conditions.
+                </p>
+              </div>
+
+              <div className="crop-form">
+                <label>
+                  Crop
+
+                  <select
+                    value={irrigationCrop}
+                    onChange={(e) =>
+                      setIrrigationCrop(e.target.value)
+                    }
+                  >
+                    <option value="">
+                      Select crop
+                    </option>
+                    <option value="rice">Rice</option>
+                    <option value="cotton">
+                      Cotton
+                    </option>
+                    <option value="groundnut">
+                      Groundnut
+                    </option>
+                    <option value="chickpea">
+                      Chickpea
+                    </option>
+                    <option value="millet">
+                      Millet
+                    </option>
+                  </select>
+                </label>
+
+                <label>
+                  Soil
+
+                  <select
+                    value={irrigationSoil}
+                    onChange={(e) =>
+                      setIrrigationSoil(e.target.value)
+                    }
+                  >
+                    <option value="">
+                      Select soil
+                    </option>
+                    <option value="black">
+                      Black Soil
+                    </option>
+                    <option value="loamy">
+                      Loamy Soil
+                    </option>
+                    <option value="red">
+                      Red Soil
+                    </option>
+                    <option value="sandy">
+                      Sandy Soil
+                    </option>
+                  </select>
+                </label>
+              </div>
+
+              <button
+                className="recommend-button"
+                onClick={planIrrigation}
+              >
+                Generate Irrigation Plan 💧
+              </button>
+
+              {irrigationResult && (
+                <div className="recommendation">
+                  <strong>Water Guidance</strong>
+
+                  <p
+                    style={{
+                      whiteSpace: 'pre-line',
+                    }}
+                  >
+                    {irrigationResult}
+                  </p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* AI ASSISTANT */}
+          {activeTool === 'ai' && (
+            <section className="workspace-card">
+              <div className="workspace-header">
+                <p className="eyebrow">
+                  AI FARMER ASSISTANT
+                </p>
+
+                <h1>
+                  🤖 Ask KrishiRakshak AI
+                </h1>
+
+                <p>
+                  Ask a farming-related question and
+                  receive intelligent prototype guidance.
+                </p>
+              </div>
+
+              <div className="ai-question-box">
+                <textarea
+                  placeholder="Example: When should I irrigate my groundnut crop?"
+                  value={question}
+                  onChange={(e) =>
+                    setQuestion(e.target.value)
+                  }
+                />
+              </div>
+
+              <button
+                className="recommend-button"
+                onClick={askAI}
+              >
+                Ask KrishiRakshak AI 🤖
+              </button>
+
+              {aiResult && (
+                <div className="recommendation">
+                  <strong>AI Response</strong>
+
+                  <p
+                    style={{
+                      whiteSpace: 'pre-line',
+                    }}
+                  >
+                    {aiResult}
+                  </p>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* INSIGHTS */}
+          {activeTool === 'insights' && (
+            <section className="workspace-card">
+              <div className="workspace-header">
+                <p className="eyebrow">
+                  FARM INTELLIGENCE
+                </p>
+
+                <h1>📊 Farm Insights</h1>
+
+                <p>
+                  Bring crop health, weather and irrigation
+                  information together for future analytics.
+                </p>
+              </div>
+
+              <div className="insight-grid">
+
+                <div className="insight-box">
+                  <span>🌱</span>
+
+                  <strong>
+                    Crop Health
+                  </strong>
+
+                  <p>
+                    Track crop condition and field
+                    observations.
+                  </p>
+                </div>
+
+                <div className="insight-box">
+                  <span>💧</span>
+
+                  <strong>
+                    Water
+                  </strong>
+
+                  <p>
+                    Monitor irrigation decisions and
+                    water usage.
+                  </p>
+                </div>
+
+                <div className="insight-box">
+                  <span>🌦️</span>
+
+                  <strong>
+                    Weather
+                  </strong>
+
+                  <p>
+                    Connect weather conditions with
+                    farm activity.
+                  </p>
+                </div>
+
+                <div className="insight-box">
+                  <span>📈</span>
+
+                  <strong>
+                    Future Analytics
+                  </strong>
+
+                  <p>
+                    Historical farm data can power
+                    personalized farming insights.
+                  </p>
+                </div>
+
+              </div>
+            </section>
+          )}
+
+        </main>
+      </div>
+    )
+  }
+
+  // -----------------------------
+  // DASHBOARD
+  // -----------------------------
+  return (
+    <div className="app">
+
+      <nav className="navbar">
+
+        <div className="nav-brand">
+          🌾 KrishiRakshak <span>AI</span>
+        </div>
+
+        <button
+          className="nav-home"
+          onClick={() => setStarted(false)}
+        >
+          Home
+        </button>
+
+      </nav>
+
+      <main className="dashboard">
+
+        <div className="dashboard-heading">
+
+          <p className="eyebrow">
+            FARMER COMMAND CENTER
+          </p>
+
+          <h2>
+            Your Farm Intelligence Dashboard
+          </h2>
+
+          <p>
+            Choose a module and enter a focused workspace
+            for agricultural decision support.
+          </p>
+
+        </div>
+
+        <div className="features">
+
+          <div className="feature-card">
+            <div className="icon">🌱</div>
+
+            <h3>
+              Crop Recommendation
+            </h3>
+
+            <p>
+              Analyze soil, season and water availability
+              to identify a suitable crop.
+            </p>
+
+            <button
+              onClick={() => openTool('crop')}
+            >
+              Open Module →
+            </button>
+          </div>
+
+          <div className="feature-card">
+            <div className="icon">🐛</div>
+
+            <h3>
+              Crop Health AI
+            </h3>
+
+            <p>
+              Check visible crop symptoms and receive
+              an initial health assessment.
+            </p>
+
+            <button
+              onClick={() => openTool('health')}
+            >
+              Open Module →
+            </button>
+          </div>
+
+          <div className="feature-card">
+            <div className="icon">🌦️</div>
+
+            <h3>
+              Weather Intelligence
+            </h3>
+
+            <p>
+              Get live weather information for your
+              village or city.
+            </p>
+
+            <button
+              onClick={() => openTool('weather')}
+            >
+              Check Weather →
+            </button>
+          </div>
+
+          <div className="feature-card">
+            <div className="icon">💧</div>
+
+            <h3>
+              Irrigation Planner
+            </h3>
+
+            <p>
+              Plan irrigation using crop and soil
+              conditions while avoiding unnecessary
+              watering.
+            </p>
+
+            <button
+              onClick={() => openTool('irrigation')}
+            >
+              Open Module →
+            </button>
+          </div>
+
+          <div className="feature-card">
+            <div className="icon">🤖</div>
+
+            <h3>
+              AI Farmer Assistant
+            </h3>
+
+            <p>
+              Ask farming questions through a simple
+              intelligent conversational interface.
+            </p>
+
+            <button
+              onClick={() => openTool('ai')}
+            >
+              Open Assistant →
+            </button>
+          </div>
+
+          <div className="feature-card">
+            <div className="icon">📸</div>
+
+            <h3>
+              Crop Disease Detection
+            </h3>
+
+            <p>
+              Upload a crop or leaf image for an
+              initial AI-assisted health assessment.
+            </p>
+
+            <button
+              onClick={() => openTool('disease')}
+            >
+              Analyze Crop Image →
+            </button>
+          </div>
+
+          <div className="feature-card">
+            <div className="icon">📊</div>
+
+            <h3>
+              Farm Insights
+            </h3>
+
+            <p>
+              Bring crop health, weather and irrigation
+              information together for future analytics.
+            </p>
+
+            <button
+              onClick={() => openTool('insights')}
+            >
+              View Insights →
+            </button>
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+  )
+}
+
+export default App

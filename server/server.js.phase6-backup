@@ -1,0 +1,508 @@
+import http from 'http'
+
+const PORT = 5000
+
+const headers = {
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type'
+}
+
+function sendJSON(res, statusCode, data) {
+  res.writeHead(statusCode, headers)
+  res.end(JSON.stringify(data))
+}
+
+function normalize(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function answerQuestion(question) {
+  const q = normalize(question)
+
+  // ---------------------------------------------
+  // GROUNDNUT
+  // ---------------------------------------------
+
+  if (
+    (q.includes('groundnut') || q.includes('peanut')) &&
+    (q.includes('water') ||
+      q.includes('irrigation') ||
+      q.includes('irrigate'))
+  ) {
+    return {
+      answer:
+        'Groundnut needs timely irrigation during important crop-growth stages. Check the soil moisture before irrigating and avoid waterlogging. Irrigation should also consider recent rainfall and the soil condition.',
+      category: 'Groundnut • Irrigation',
+      confidence: 'High',
+      tips: [
+        'Check soil moisture before watering.',
+        'Avoid prolonged waterlogging.',
+        'Consider recent rainfall.',
+        'Monitor the crop more closely during flowering and pod development.'
+      ]
+    }
+  }
+
+  if (
+    (q.includes('groundnut') || q.includes('peanut')) &&
+    (q.includes('yellow') ||
+      q.includes('yellowing') ||
+      q.includes('leaf'))
+  ) {
+    return {
+      answer:
+        'Yellowing in groundnut can have several causes, including nutrient stress, water-related stress or disease. Inspect the leaves, check soil moisture and compare affected plants with healthy plants before applying any treatment.',
+      category: 'Groundnut • Crop Health',
+      confidence: 'Medium',
+      tips: [
+        'Inspect both older and newer leaves.',
+        'Check soil moisture.',
+        'Look for spots or pest activity.',
+        'Avoid applying fertilizer or pesticide without identifying the likely cause.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // RICE
+  // ---------------------------------------------
+
+  if (
+    (q.includes('rice') || q.includes('paddy')) &&
+    (q.includes('water') ||
+      q.includes('irrigation') ||
+      q.includes('irrigate'))
+  ) {
+    return {
+      answer:
+        'Rice requires careful water management. The correct irrigation approach depends on the crop stage, soil condition, rainfall and field drainage. Avoid unnecessary irrigation when sufficient water is already available.',
+      category: 'Rice • Irrigation',
+      confidence: 'High',
+      tips: [
+        'Monitor field water conditions.',
+        'Consider recent rainfall.',
+        'Maintain proper drainage.',
+        'Adjust water management according to crop growth stage.'
+      ]
+    }
+  }
+
+  if (
+    (q.includes('rice') || q.includes('paddy')) &&
+    (q.includes('yellow') ||
+      q.includes('yellowing') ||
+      q.includes('leaf'))
+  ) {
+    return {
+      answer:
+        'Yellowing in rice can be associated with nutrient imbalance, water stress, root problems or disease. Inspect the affected area carefully and compare symptoms across the field before deciding on treatment.',
+      category: 'Rice • Crop Health',
+      confidence: 'Medium',
+      tips: [
+        'Check water conditions.',
+        'Inspect leaf patterns.',
+        'Look for pest or disease symptoms.',
+        'Use locally recommended nutrient management.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // COTTON
+  // ---------------------------------------------
+
+  if (
+    q.includes('cotton') &&
+    (q.includes('water') ||
+      q.includes('irrigation') ||
+      q.includes('irrigate'))
+  ) {
+    return {
+      answer:
+        'Cotton benefits from controlled irrigation. Monitor soil moisture around the root zone and avoid both prolonged dryness and excessive watering. Rainfall should also be considered before irrigation.',
+      category: 'Cotton • Irrigation',
+      confidence: 'High',
+      tips: [
+        'Check root-zone moisture.',
+        'Avoid excessive irrigation.',
+        'Consider rainfall before watering.',
+        'Maintain good field drainage.'
+      ]
+    }
+  }
+
+  if (
+    q.includes('cotton') &&
+    (q.includes('pest') ||
+      q.includes('insect') ||
+      q.includes('bug'))
+  ) {
+    return {
+      answer:
+        'For cotton pest problems, first identify the insect and estimate how widely it has spread. Inspect leaves, buds and other affected plant parts before selecting a control method.',
+      category: 'Cotton • Pest Management',
+      confidence: 'Medium',
+      tips: [
+        'Inspect the whole plant.',
+        'Check both sides of leaves.',
+        'Identify the pest before treatment.',
+        'Use locally recommended integrated pest-management practices.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // CHICKPEA
+  // ---------------------------------------------
+
+  if (
+    (q.includes('chickpea') || q.includes('gram')) &&
+    (q.includes('water') ||
+      q.includes('irrigation') ||
+      q.includes('irrigate'))
+  ) {
+    return {
+      answer:
+        'Chickpea generally requires careful irrigation management. Avoid excessive watering and consider soil moisture, rainfall and crop growth stage before irrigation.',
+      category: 'Chickpea • Irrigation',
+      confidence: 'Medium',
+      tips: [
+        'Check soil moisture.',
+        'Avoid waterlogging.',
+        'Consider rainfall.',
+        'Adjust irrigation to crop stage.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // MILLET
+  // ---------------------------------------------
+
+  if (
+    (q.includes('millet') ||
+      q.includes('ragi') ||
+      q.includes('jowar') ||
+      q.includes('bajra')) &&
+    (q.includes('water') ||
+      q.includes('irrigation') ||
+      q.includes('irrigate'))
+  ) {
+    return {
+      answer:
+        'Millets are generally adapted to relatively lower water conditions, but irrigation needs depend on crop stage, soil and rainfall. Check soil moisture before applying additional water.',
+      category: 'Millets • Irrigation',
+      confidence: 'Medium',
+      tips: [
+        'Monitor soil moisture.',
+        'Avoid unnecessary irrigation.',
+        'Consider rainfall.',
+        'Pay attention to sensitive crop-growth stages.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // PESTS
+  // ---------------------------------------------
+
+  if (
+    q.includes('pest') ||
+    q.includes('insect') ||
+    q.includes('bug') ||
+    q.includes('worm')
+  ) {
+    return {
+      answer:
+        'For a suspected pest attack, first identify the insect or damage pattern. Inspect both sides of leaves and nearby plants and estimate how widely the problem has spread. Avoid applying pesticides before identifying the likely pest.',
+      category: 'Pest Management',
+      confidence: 'Medium',
+      tips: [
+        'Inspect leaves carefully.',
+        'Look for eggs, larvae or adult insects.',
+        'Estimate the affected area.',
+        'Use integrated pest-management practices where appropriate.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // YELLOW LEAVES
+  // ---------------------------------------------
+
+  if (
+    q.includes('yellow leaf') ||
+    q.includes('yellow leaves') ||
+    q.includes('yellowing') ||
+    q.includes('leaves are yellow')
+  ) {
+    return {
+      answer:
+        'Yellow leaves can have several causes, including nutrient imbalance, excess water, insufficient water, root stress or disease. Do not assume a single cause from colour alone.',
+      category: 'Crop Health',
+      confidence: 'Medium',
+      tips: [
+        'Check soil moisture.',
+        'Inspect the pattern of yellowing.',
+        'Look for spots, insects or other symptoms.',
+        'Review recent irrigation and fertilizer practices.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // WILTING
+  // ---------------------------------------------
+
+  if (
+    q.includes('wilt') ||
+    q.includes('wilting') ||
+    q.includes('drooping')
+  ) {
+    return {
+      answer:
+        'Wilting may result from water shortage, waterlogging, root damage, disease or environmental stress. Check soil moisture and drainage first and inspect the plant stem and root area if possible.',
+      category: 'Crop Health',
+      confidence: 'Medium',
+      tips: [
+        'Check soil moisture.',
+        'Check field drainage.',
+        'Inspect stems and roots.',
+        'Look for pest or disease symptoms.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // LEAF SPOTS
+  // ---------------------------------------------
+
+  if (
+    q.includes('leaf spot') ||
+    q.includes('spots on leaf') ||
+    q.includes('brown spot') ||
+    q.includes('black spot')
+  ) {
+    return {
+      answer:
+        'Leaf spots can be caused by fungal or bacterial diseases, pests or environmental stress. The exact cause cannot be confirmed from a text description alone. Inspect the affected leaves and monitor whether the symptoms are spreading.',
+      category: 'Crop Health • Leaf Symptoms',
+      confidence: 'Medium',
+      tips: [
+        'Inspect both sides of affected leaves.',
+        'Check whether new leaves are affected.',
+        'Look for insects or fungal growth.',
+        'Get expert confirmation before applying treatment.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // FERTILIZER
+  // ---------------------------------------------
+
+  if (
+    q.includes('fertilizer') ||
+    q.includes('fertiliser') ||
+    q.includes('nutrient') ||
+    q.includes('urea')
+  ) {
+    return {
+      answer:
+        'Fertilizer decisions should consider crop type, growth stage, soil condition and nutrient status. Avoid applying fertilizer only because of one visual symptom. Soil testing and locally recommended crop guidance are preferable.',
+      category: 'Crop Nutrition',
+      confidence: 'Medium',
+      tips: [
+        'Consider soil testing.',
+        'Identify the crop and growth stage.',
+        'Avoid excessive fertilizer application.',
+        'Follow locally recommended nutrient practices.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // RAIN / WEATHER
+  // ---------------------------------------------
+
+  if (
+    q.includes('rain') ||
+    q.includes('rainfall') ||
+    q.includes('weather') ||
+    q.includes('temperature')
+  ) {
+    return {
+      answer:
+        'Weather can strongly affect irrigation, spraying and crop health. Before farm operations, check the current and upcoming weather, recent rainfall and field moisture.',
+      category: 'Weather & Farm Planning',
+      confidence: 'Medium',
+      tips: [
+        'Check rainfall before irrigation.',
+        'Avoid spraying during unsuitable weather.',
+        'Monitor crops after prolonged wet conditions.',
+        'Watch for heat or strong-wind stress.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // IRRIGATION GENERAL
+  // ---------------------------------------------
+
+  if (
+    q.includes('irrigation') ||
+    q.includes('irrigate') ||
+    q.includes('watering') ||
+    q.includes('water my crop')
+  ) {
+    return {
+      answer:
+        'Irrigation should be based on crop, growth stage, soil moisture, recent rainfall and drainage. Avoid watering simply according to a fixed schedule when field conditions indicate otherwise.',
+      category: 'Irrigation',
+      confidence: 'Medium',
+      tips: [
+        'Check soil moisture first.',
+        'Consider recent rainfall.',
+        'Avoid waterlogging.',
+        'Adjust irrigation to crop stage.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // CROP RECOMMENDATION
+  // ---------------------------------------------
+
+  if (
+    q.includes('which crop') ||
+    q.includes('what crop') ||
+    q.includes('crop recommendation') ||
+    q.includes('crop to grow') ||
+    q.includes('best crop')
+  ) {
+    return {
+      answer:
+        'Crop selection depends on soil type, season, available water, local climate, market conditions and farmer resources. Share your soil type, location, season and water availability for a more useful recommendation.',
+      category: 'Crop Recommendation',
+      confidence: 'Medium',
+      tips: [
+        'Provide soil type.',
+        'Provide location.',
+        'Provide season.',
+        'Mention available irrigation or rainfall.'
+      ]
+    }
+  }
+
+  // ---------------------------------------------
+  // GENERAL
+  // ---------------------------------------------
+
+  return {
+    answer:
+      'I can help with crop health, irrigation, weather, pests, crop selection and basic farm decision support. For a better answer, mention your crop, location, soil condition and the exact problem you are observing.',
+    category: 'General Farming',
+    confidence: 'Low',
+    tips: [
+      'Mention the crop name.',
+      'Mention your location.',
+      'Describe the symptom or problem.',
+      'Mention recent rainfall or irrigation if relevant.'
+    ]
+  }
+}
+
+const server = http.createServer((req, res) => {
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, headers)
+    res.end()
+    return
+  }
+
+  if (req.method === 'GET' && req.url === '/api/health') {
+    sendJSON(res, 200, {
+      success: true,
+      service: 'KrishiRakshak AI',
+      status: 'online',
+      version: '4C'
+    })
+
+    return
+  }
+
+  if (req.method === 'POST' && req.url === '/api/ask') {
+    let body = ''
+
+    req.on('data', (chunk) => {
+      body += chunk.toString()
+    })
+
+    req.on('end', () => {
+      try {
+        const data = JSON.parse(body)
+        const question = String(data.question || '').trim()
+
+        if (!question) {
+          sendJSON(res, 400, {
+            success: false,
+            message: 'Question is required.'
+          })
+
+          return
+        }
+
+        const result = answerQuestion(question)
+
+        sendJSON(res, 200, {
+          success: true,
+          question,
+          ...result,
+          timestamp: new Date().toISOString()
+        })
+      } catch (error) {
+        console.error(error)
+
+        sendJSON(res, 400, {
+          success: false,
+          message: 'Invalid request.'
+        })
+      }
+    })
+
+    return
+  }
+
+  sendJSON(res, 404, {
+    success: false,
+    message: 'Route not found.'
+  })
+})
+
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${PORT} is already in use.`)
+    console.error(
+      'Stop the existing KrishiRakshak backend and start this server again.'
+    )
+  } else {
+    console.error('❌ Server error:', error)
+  }
+})
+
+server.listen(PORT, () => {
+  console.log('')
+  console.log('🌾 KrishiRakshak AI Backend')
+  console.log('--------------------------------')
+  console.log(`🚀 Server: http://localhost:${PORT}`)
+  console.log('🤖 AI:     POST /api/ask')
+  console.log('❤️ Health: GET  /api/health')
+  console.log('🧠 Engine: Farmer Decision Support v4C')
+  console.log('--------------------------------')
+  console.log('')
+})
