@@ -303,7 +303,7 @@ function App() {
 
     try {
       const response = await fetch(
-        'http://localhost:5000/api/ask',
+        'https://krishirakshak-sih-api.onrender.com/api/ask',
         {
           method: 'POST',
           headers: {
@@ -348,7 +348,7 @@ function App() {
         `❌ Unable to connect to KrishiRakshak AI backend.
 
 Please make sure the backend is running on:
-http://localhost:5000`
+https://krishirakshak-sih-api.onrender.com`
       )
     }
   }

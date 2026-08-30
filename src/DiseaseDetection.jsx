@@ -52,7 +52,7 @@ function DiseaseDetection() {
       formData.append('image', image)
 
       const response = await fetch(
-        'http://localhost:5000/api/disease',
+       'https://krishirakshak-sih-api.onrender.com/api/disease',
         {
           method: 'POST',
           body: formData,
